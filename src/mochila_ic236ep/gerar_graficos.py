@@ -24,12 +24,69 @@ def ler_resumo(caminho_csv):
                 "tempo_medio_ms": float(linha["tempo_medio_ms"]),
             })
 
-    return dados
+    ordem = {
+        "Guloso": 0,
+        "AG Original": 1,
+        "AG Otimizado": 2,
+    }
+
+    return sorted(dados, key=lambda item: ordem.get(item["metodo"], 99))
 
 
-def gerar_grafico_barras(labels, valores, titulo, ylabel, nome_arquivo):
+def formatar_numero(valor):
+    if valor >= 100:
+        return f"{valor:.2f}"
+    if valor >= 1:
+        return f"{valor:.4f}"
+    return f"{valor:.5f}"
+
+
+def adicionar_rotulos(barras, valores):
+    for barra, valor in zip(barras, valores):
+        altura = barra.get_height()
+
+        plt.text(
+            barra.get_x() + barra.get_width() / 2,
+            altura,
+            formatar_numero(valor),
+            ha="center",
+            va="bottom",
+            fontsize=9
+        )
+
+
+def gerar_grafico_valor(labels, valores, titulo, ylabel, nome_arquivo):
     plt.figure(figsize=(8, 5))
-    plt.bar(labels, valores)
+
+    barras = plt.bar(labels, valores)
+    adicionar_rotulos(barras, valores)
+
+    menor = min(valores)
+    maior = max(valores)
+    margem = max((maior - menor) * 0.4, 2)
+
+    plt.ylim(menor - margem, maior + margem)
+
+    plt.title(titulo)
+    plt.xlabel("Método")
+    plt.ylabel(ylabel)
+    plt.grid(axis="y", linestyle=":", alpha=0.7)
+
+    caminho_saida = os.path.join(PASTA_RESULTADOS, nome_arquivo)
+    plt.savefig(caminho_saida, dpi=300, bbox_inches="tight")
+    plt.close()
+
+    print(f"Gráfico salvo: {caminho_saida}")
+
+
+def gerar_grafico_tempo(labels, valores, titulo, ylabel, nome_arquivo):
+    plt.figure(figsize=(8, 5))
+
+    barras = plt.bar(labels, valores)
+    adicionar_rotulos(barras, valores)
+
+    plt.yscale("log")
+
     plt.title(titulo)
     plt.xlabel("Método")
     plt.ylabel(ylabel)
@@ -53,7 +110,7 @@ def main():
     melhores_valores = [item["melhor_valor"] for item in dados]
     tempos_medios = [item["tempo_medio_ms"] for item in dados]
 
-    gerar_grafico_barras(
+    gerar_grafico_valor(
         labels=labels,
         valores=valores_medios,
         titulo="Valor Médio por Método",
@@ -61,7 +118,7 @@ def main():
         nome_arquivo="valor_medio_por_metodo.png",
     )
 
-    gerar_grafico_barras(
+    gerar_grafico_valor(
         labels=labels,
         valores=melhores_valores,
         titulo="Melhor Valor por Método",
@@ -69,11 +126,11 @@ def main():
         nome_arquivo="melhor_valor_por_metodo.png",
     )
 
-    gerar_grafico_barras(
+    gerar_grafico_tempo(
         labels=labels,
         valores=tempos_medios,
         titulo="Tempo Médio por Método",
-        ylabel="Tempo médio (ms)",
+        ylabel="Tempo médio (ms) - escala logarítmica",
         nome_arquivo="tempo_medio_por_metodo.png",
     )
 
