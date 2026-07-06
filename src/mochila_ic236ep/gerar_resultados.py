@@ -7,6 +7,7 @@ import time
 from src.mochila_ic236ep.utils import ler_instancia
 from src.mochila_ic236ep.heuristics import heuristica_gulosa
 from src.mochila_ic236ep.metaheuristics import AlgoritmoGenetico
+from src.mochila_ic236ep.memetic import AlgoritmoMemetico
 
 
 CAMINHO_INSTANCIA = "src/mochila_ic236ep/instancia_grande.txt"
@@ -58,7 +59,6 @@ def executar_ag(instancia, nome_metodo, parametros, num_execucoes):
     resultados = []
 
     for i in range(num_execucoes):
-        # Define uma semente para deixar o experimento mais reprodutível
         random.seed(i)
 
         inicio = time.perf_counter()
@@ -93,6 +93,50 @@ def executar_ag(instancia, nome_metodo, parametros, num_execucoes):
 
         print(
             f"{nome_metodo} - Execução {i + 1}: "
+            f"valor={valor}, peso={peso}, tempo={tempo_ms:.4f} ms"
+        )
+
+    return resultados
+
+
+def executar_memetico(instancia, parametros, num_execucoes):
+    resultados = []
+
+    for i in range(num_execucoes):
+        random.seed(i)
+
+        inicio = time.perf_counter()
+
+        memetico = AlgoritmoMemetico(
+            instancia=instancia,
+            tam_populacao=parametros["tam_populacao"],
+            geracoes=parametros["geracoes"],
+            tx_mutacao=parametros["tx_mutacao"],
+            tx_crossover=parametros["tx_crossover"],
+            torneio_k=parametros["torneio_k"],
+        )
+
+        _, valor, peso, _ = memetico.executar()
+
+        tempo_ms = (time.perf_counter() - inicio) * 1000
+
+        resultado = {
+            "metodo": "Memético",
+            "execucao": i + 1,
+            "valor": valor,
+            "peso": peso,
+            "tempo_ms": tempo_ms,
+            "tam_populacao": parametros["tam_populacao"],
+            "geracoes": parametros["geracoes"],
+            "tx_mutacao": parametros["tx_mutacao"],
+            "tx_crossover": parametros["tx_crossover"],
+            "torneio_k": parametros["torneio_k"],
+        }
+
+        resultados.append(resultado)
+
+        print(
+            f"Memético - Execução {i + 1}: "
             f"valor={valor}, peso={peso}, tempo={tempo_ms:.4f} ms"
         )
 
@@ -164,6 +208,14 @@ def main():
         num_execucoes=NUM_EXECUCOES,
     )
     todos_resultados.extend(resultados_ag_otimizado)
+
+    print("\nExecutando Algoritmo Memético...")
+    resultados_memetico = executar_memetico(
+        instancia=instancia,
+        parametros=PARAMETROS_AG_OTIMIZADO,
+        num_execucoes=NUM_EXECUCOES,
+    )
+    todos_resultados.extend(resultados_memetico)
 
     caminho_detalhado = os.path.join(PASTA_RESULTADOS, "resultados_detalhados.csv")
     salvar_csv(caminho_detalhado, todos_resultados)

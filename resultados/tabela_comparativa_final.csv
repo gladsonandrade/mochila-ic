@@ -1,4 +1,5 @@
-metodo,execucoes,melhor_valor,pior_valor,valor_medio,peso_medio,tempo_medio_ms
-Guloso,1,1018.0,1018.0,1018.0,493.0,0.0727
-AG Original,30,1028.0,1006.0,1016.83,499.27,48.5480
-AG Otimizado,30,1031.0,1023.0,1027.50,499.83,278.5946
+﻿metodo,execucoes,melhor_valor,pior_valor,valor_medio,peso_medio,tempo_medio_ms
+Guloso,1,1018.0,1018.0,1018.0,493.0,0.0224
+AG Original,30,1028.0,1006.0,1016.83,499.27,48.3276
+AG Otimizado,30,1031.0,1023.0,1027.50,499.83,292.0853
+Memético,30,1031.0,1026.0,1029.13,499.93,290.7544
