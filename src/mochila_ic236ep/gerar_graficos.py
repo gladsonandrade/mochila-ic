@@ -1,5 +1,6 @@
 import csv
 import os
+
 import matplotlib.pyplot as plt
 
 
@@ -28,6 +29,7 @@ def ler_resumo(caminho_csv):
         "Guloso": 0,
         "AG Original": 1,
         "AG Otimizado": 2,
+        "Memético": 3,
     }
 
     return sorted(dados, key=lambda item: ordem.get(item["metodo"], 99))
@@ -108,6 +110,7 @@ def main():
 
     valores_medios = [item["valor_medio"] for item in dados]
     melhores_valores = [item["melhor_valor"] for item in dados]
+    piores_valores = [item["pior_valor"] for item in dados]
     tempos_medios = [item["tempo_medio_ms"] for item in dados]
 
     gerar_grafico_valor(
@@ -124,6 +127,14 @@ def main():
         titulo="Melhor Valor por Método",
         ylabel="Melhor valor encontrado",
         nome_arquivo="melhor_valor_por_metodo.png",
+    )
+
+    gerar_grafico_valor(
+        labels=labels,
+        valores=piores_valores,
+        titulo="Pior Valor por Método",
+        ylabel="Pior valor encontrado",
+        nome_arquivo="pior_valor_por_metodo.png",
     )
 
     gerar_grafico_tempo(
